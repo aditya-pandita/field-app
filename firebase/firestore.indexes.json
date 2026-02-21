@@ -1,0 +1,13 @@
+{
+  "indexes": [
+    { "collectionGroup": "sessions",          "fields": [{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"sessionDate","order":"DESCENDING"}] },
+    { "collectionGroup": "approaches",        "fields": [{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"loggedAt","order":"DESCENDING"}] },
+    { "collectionGroup": "approaches",        "fields": [{"fieldPath":"sessionId","order":"ASCENDING"},{"fieldPath":"loggedAt","order":"ASCENDING"}] },
+    { "collectionGroup": "scenarioSessions",  "fields": [{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"startedAt","order":"DESCENDING"}] },
+    { "collectionGroup": "adversarySessions", "fields": [{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"startedAt","order":"DESCENDING"}] },
+    { "collectionGroup": "flashcardProgress", "fields": [{"fieldPath":"userId","order":"ASCENDING"},{"fieldPath":"nextReviewAt","order":"ASCENDING"}] },
+    { "collectionGroup": "topicBank",         "fields": [{"fieldPath":"difficulty","order":"ASCENDING"}] },
+    { "collectionGroup": "transitionPhrases", "fields": [{"fieldPath":"difficulty","order":"ASCENDING"}] }
+  ],
+  "fieldOverrides": []
+}
