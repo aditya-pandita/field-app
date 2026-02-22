@@ -7,6 +7,8 @@ import { getSessionById } from "@/lib/firebase/queries/sessions";
 import { getSessionApproaches } from "@/lib/firebase/queries/approaches";
 import PageHeader from "@/components/layout/PageHeader";
 import SectionLabel from "@/components/layout/SectionLabel";
+import { Modal } from "@/components/ui/Modal";
+import { ApproachLogger } from "@/components/approach/ApproachLogger";
 import type { Session, Approach } from "@/lib/firebase/types";
 import { formatDate, formatScore } from "@/lib/utils/format";
 import { getScoreColor } from "@/lib/utils/scores";
@@ -18,6 +20,7 @@ export default function SessionDetailPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [approaches, setApproaches] = useState<Approach[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showLogger, setShowLogger] = useState(false);
 
   const sessionId = params.sessionId as string;
 
@@ -39,6 +42,12 @@ export default function SessionDetailPage() {
     }
     loadData();
   }, [sessionId]);
+
+  const handleApproachLogged = async () => {
+    setShowLogger(false);
+    const approachData = await getSessionApproaches(sessionId);
+    setApproaches(approachData);
+  };
 
   if (loading) {
     return (
@@ -77,7 +86,7 @@ export default function SessionDetailPage() {
         subtitle={`${session.locationName || session.locationType} · ${session.timeOfDay}`}
         action={
           <button
-            onClick={() => router.push("/journal/new")}
+            onClick={() => setShowLogger(true)}
             className="bg-[#FF5500] text-white font-['JetBrains_Mono'] text-[10px] tracking-[3px] uppercase px-7 py-3 cursor-pointer transition-all duration-150 hover:bg-[#E64D00]"
           >
             + LOG APPROACH
@@ -190,6 +199,19 @@ export default function SessionDetailPage() {
           ))}
         </div>
       )}
+
+      <Modal isOpen={showLogger} onClose={() => setShowLogger(false)} title="Log Approach" size="lg">
+        {userId && sessionId && (
+          <div className="p-4">
+            <ApproachLogger
+              userId={userId}
+              sessionId={sessionId}
+              onSuccess={handleApproachLogged}
+              onClose={() => setShowLogger(false)}
+            />
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

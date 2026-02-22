@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   BookOpen,
+  Mic,
   BarChart2,
   Zap,
   MessageSquare,
@@ -17,12 +18,13 @@ import { cn } from "@/lib/utils/cn";
 const navItems = [
   { href: "/dashboard", label: "HOME", icon: LayoutDashboard, num: "01" },
   { href: "/journal", label: "JOURNAL", icon: BookOpen, num: "02" },
-  { href: "/analytics", label: "ANALYTICS", icon: BarChart2, num: "03" },
-  { href: "/trainer", label: "TRAINER", icon: Zap, num: "04" },
-  { href: "/scenario", label: "SCENARIO", icon: MessageSquare, num: "05" },
-  { href: "/adversary", label: "ADVERSARY", icon: Shield, num: "06", isAdversary: true },
-  { href: "/flashcards", label: "CARDS", icon: Layers, num: "07" },
-  { href: "/coaches", label: "COACHES", icon: Users, num: "08" },
+  { href: "/live", label: "LIVE", icon: Mic, num: "03", isLive: true },
+  { href: "/analytics", label: "ANALYTICS", icon: BarChart2, num: "04" },
+  { href: "/trainer", label: "TRAINER", icon: Zap, num: "05" },
+  { href: "/scenario", label: "SCENARIO", icon: MessageSquare, num: "06" },
+  { href: "/adversary", label: "ADVERSARY", icon: Shield, num: "07", isAdversary: true },
+  { href: "/flashcards", label: "CARDS", icon: Layers, num: "08" },
+  { href: "/coaches", label: "COACHES", icon: Users, num: "09" },
 ];
 
 interface SidebarProps {
@@ -52,7 +54,7 @@ export default function Sidebar({ userId, displayName }: SidebarProps) {
               className={cn(
                 "flex items-center gap-3 px-5 py-[11px] cursor-pointer transition-all duration-150 border-l-[3px] border-transparent text-decoration-none",
                 "hover:bg-[#111111]",
-                isActive && item.isAdversary
+                isActive && (item.isAdversary || item.isLive)
                   ? "border-l-[#EF4444] bg-[#111111]"
                   : isActive
                   ? "border-l-[#FF5500] bg-[#111111]"
@@ -62,7 +64,7 @@ export default function Sidebar({ userId, displayName }: SidebarProps) {
               <span
                 className={cn(
                   "text-[18px] w-[18px] flex items-center justify-center transition-colors duration-150",
-                  isActive && item.isAdversary
+                  isActive && (item.isAdversary || item.isLive)
                     ? "text-[#EF4444]"
                     : isActive
                     ? "text-[#FF5500]"

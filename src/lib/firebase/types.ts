@@ -182,6 +182,21 @@ export interface AdversaryDebrief {
   nextChallenge: string;
 }
 
+export interface ApproachRecording {
+  recordingId: string;
+  userId: string;
+  sessionId: string | null;
+  recordedAt: Date;
+  durationSecs: number;
+  transcript: string;
+  notes: string;
+  tags: string[];
+  isReviewed: boolean;
+  createdAt: Date;
+}
+
+export type NewRecording = Omit<ApproachRecording, "recordingId" | "createdAt">;
+
 export interface UserStats {
   totalApproaches: number;
   avgScore: number;

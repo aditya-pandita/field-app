@@ -1,6 +1,7 @@
 "use client";
 
 import PageHeader from "@/components/layout/PageHeader";
+import { CoachGrid } from "@/components/coaches/CoachGrid";
 
 export default function CoachesPage() {
   return (
@@ -10,9 +11,7 @@ export default function CoachesPage() {
         title="Coaches"
         subtitle="Study different approaches and methodologies"
       />
-      <div className="text-[#666666] text-center py-16">
-        Coaches reference coming soon...
-      </div>
+      <CoachGrid />
     </div>
   );
 }
