@@ -48,6 +48,7 @@ export function AllApproachesList({ userId }: AllApproachesListProps) {
     async function load() {
       setLoading(true);
       try {
+        if (!db) return; 
         const q = query(
           collection(db, "approaches"),
           where("userId", "==", userId),
