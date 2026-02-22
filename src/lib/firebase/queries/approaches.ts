@@ -96,11 +96,11 @@ export async function updateApproach(
 
   const merged = { ...existing.data(), ...data };
   const scoreOverall = calcOverallScore({
-    execution:  merged.scoreExecution,
-    tonality:   merged.scoreTonality,
-    investment: merged.scoreInvestment,
-    close:      merged.scoreClose,
-    recovery:   merged.scoreRecovery,
+    execution:  merged.scoreExecution ?? 0,
+    tonality:   merged.scoreTonality ?? 0,
+    investment: merged.scoreInvestment ?? 0,
+    close:      merged.scoreClose ?? 0,
+    recovery:   merged.scoreRecovery ?? 0,
   });
 
   await updateDoc(doc(db, "approaches", approachId), {
