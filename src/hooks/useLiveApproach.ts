@@ -155,6 +155,7 @@ export function useLiveApproach(userId: string) {
       const recordingData: NewRecording = {
         userId,
         sessionId,
+        approachId: null,
         recordedAt: new Date(),
         durationSecs: elapsedSecs,
         transcript,
