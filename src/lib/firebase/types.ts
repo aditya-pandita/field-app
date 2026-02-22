@@ -186,6 +186,7 @@ export interface ApproachRecording {
   recordingId: string;
   userId: string;
   sessionId: string | null;
+  approachId:   string | null;
   recordedAt: Date;
   durationSecs: number;
   transcript: string;
