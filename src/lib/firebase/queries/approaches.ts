@@ -34,8 +34,8 @@ function toApproach(id: string, data: any): Approach {
     whatToImprove:   data.whatToImprove  ?? "",
     notableMoment:   data.notableMoment  ?? "",
     tags:            data.tags           ?? [],
-    coachStyle:      data.coachStyle     ?? "",
-    environment:     data.environment    ?? "",
+    // coachStyle:      data.coachStyle     ?? "",
+    // environment:     data.environment    ?? "",
     loggedAt:        data.loggedAt?.toDate?.()  ?? new Date(),
     createdAt:       data.createdAt?.toDate?.() ?? new Date(),
   };
