@@ -1,21 +1,32 @@
 "use client";
 
+// src/components/journal/SessionList.tsx
+
 import SessionCard from "./SessionCard";
 import type { Session } from "@/lib/firebase/types";
 
 interface SessionListProps {
-  sessions: Session[];
+  sessions:       Session[];
   onSessionClick?: (sessionId: string) => void;
+  onSessionEdit?:  (session: Session) => void;
 }
 
-export default function SessionList({ sessions, onSessionClick }: SessionListProps) {
+export default function SessionList({
+  sessions,
+  onSessionClick,
+  onSessionEdit,
+}: SessionListProps) {
   if (sessions.length === 0) {
     return (
       <div className="text-center py-16">
-        <div className="text-[14px] text-[#666666] mb-4">No sessions yet</div>
-        <button className="bg-[#FF5500] text-white font-['JetBrains_Mono'] text-[10px] tracking-[3px] uppercase px-7 py-3 cursor-pointer transition-all duration-150 hover:bg-[#E64D00]">
+        <p className="font-[family-name:var(--font-syne)] text-xl text-white mb-2">No sessions yet</p>
+        <p className="text-[#444444] text-sm mb-6">Start your first field session to begin tracking.</p>
+        <a
+          href="/journal/new"
+          className="bg-[#FF5500] text-white font-[family-name:var(--font-jetbrains)] text-[10px] tracking-widest uppercase px-7 py-3 hover:bg-[#E64D00] transition-colors"
+        >
           + NEW SESSION
-        </button>
+        </a>
       </div>
     );
   }
@@ -33,6 +44,7 @@ export default function SessionList({ sessions, onSessionClick }: SessionListPro
           notes={session.notes}
           isComplete={session.isComplete}
           onClick={() => onSessionClick?.(session.sessionId)}
+          onEdit={onSessionEdit ? () => onSessionEdit(session) : undefined}
         />
       ))}
     </div>

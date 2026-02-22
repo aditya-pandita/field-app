@@ -14,6 +14,22 @@ import {
 import { db } from "../client";
 import type { ApproachRecording, NewRecording } from "../types";
 
+function toRecording(id: string, data: any): ApproachRecording {
+  return {
+    recordingId:  id,
+    userId:       data.userId,
+    sessionId:    data.sessionId    ?? null,
+    approachId:   data.approachId   ?? null,   // ← new field for linking
+    recordedAt:   data.recordedAt?.toDate?.()  ?? new Date(),
+    durationSecs: data.durationSecs ?? 0,
+    transcript:   data.transcript   ?? "",
+    notes:        data.notes        ?? "",
+    tags:         data.tags         ?? [],
+    isReviewed:   data.isReviewed   ?? false,
+    createdAt:    data.createdAt?.toDate?.()   ?? new Date(),
+  };
+}
+
 export async function saveRecording(
   userId: string,
   data: NewRecording
@@ -22,20 +38,16 @@ export async function saveRecording(
   const ref = await addDoc(collection(db, "approachRecordings"), {
     ...data,
     userId,
-    createdAt: serverTimestamp(),
+    approachId: null,
+    createdAt:  serverTimestamp(),
   });
   const snap = await getDoc(ref);
-  return {
-    recordingId: ref.id,
-    ...snap.data(),
-    recordedAt: snap.data()?.recordedAt?.toDate?.() ?? new Date(),
-    createdAt: snap.data()?.createdAt?.toDate?.() ?? new Date(),
-  } as ApproachRecording;
+  return toRecording(ref.id, snap.data());
 }
 
 export async function getUserRecordings(
   userId: string,
-  limit = 50
+  limitCount = 50
 ): Promise<ApproachRecording[]> {
   if (!db) return [];
   const q = query(
@@ -44,12 +56,7 @@ export async function getUserRecordings(
     orderBy("recordedAt", "desc")
   );
   const snap = await getDocs(q);
-  return snap.docs.slice(0, limit).map((d) => ({
-    recordingId: d.id,
-    ...d.data(),
-    recordedAt: d.data().recordedAt?.toDate?.() ?? new Date(),
-    createdAt: d.data().createdAt?.toDate?.() ?? new Date(),
-  })) as ApproachRecording[];
+  return snap.docs.slice(0, limitCount).map((d) => toRecording(d.id, d.data()));
 }
 
 export async function getSessionRecordings(sessionId: string): Promise<ApproachRecording[]> {
@@ -60,12 +67,7 @@ export async function getSessionRecordings(sessionId: string): Promise<ApproachR
     orderBy("recordedAt", "asc")
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({
-    recordingId: d.id,
-    ...d.data(),
-    recordedAt: d.data().recordedAt?.toDate?.() ?? new Date(),
-    createdAt: d.data().createdAt?.toDate?.() ?? new Date(),
-  })) as ApproachRecording[];
+  return snap.docs.map((d) => toRecording(d.id, d.data()));
 }
 
 export async function updateRecording(
@@ -74,6 +76,21 @@ export async function updateRecording(
 ): Promise<void> {
   if (!db) return;
   await updateDoc(doc(db, "approachRecordings", recordingId), data);
+}
+
+/** Link a recording to a specific approach */
+export async function linkRecordingToApproach(
+  recordingId: string,
+  approachId:  string
+): Promise<void> {
+  if (!db) return;
+  await updateDoc(doc(db, "approachRecordings", recordingId), { approachId });
+}
+
+/** Unlink a recording from its approach */
+export async function unlinkRecording(recordingId: string): Promise<void> {
+  if (!db) return;
+  await updateDoc(doc(db, "approachRecordings", recordingId), { approachId: null });
 }
 
 export async function deleteRecording(recordingId: string): Promise<void> {

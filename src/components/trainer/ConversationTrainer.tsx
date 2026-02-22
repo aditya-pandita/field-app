@@ -38,7 +38,13 @@ export function ConversationTrainer() {
   const config = difficulty ? DIFFICULTY_CONFIG[difficulty] : null;
 
   if (phase === "idle") {
-    return <TrainerSetup onSelect={setDifficulty} selected={difficulty} />;
+    return (
+      <TrainerSetup
+        onSelect={setDifficulty}
+        onStart={startSession}
+        selected={difficulty}
+      />
+    );
   }
 
   if (phase === "topic" && config && currentTopic) {

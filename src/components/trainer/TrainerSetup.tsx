@@ -5,16 +5,17 @@ import { cn } from "@/lib/utils";
 
 interface TrainerSetupProps {
   onSelect: (difficulty: TrainerDifficulty) => void;
+  onStart: () => void;
   selected?: TrainerDifficulty | null;
 }
 
 const OPTIONS: { difficulty: TrainerDifficulty; timeLimit: number; topicCount: number; label: string; description: string }[] = [
-  { difficulty: "easy", timeLimit: 60, topicCount: 5, label: "Easy", description: "60 seconds per topic" },
+  { difficulty: "easy",   timeLimit: 60, topicCount: 5, label: "Easy",   description: "60 seconds per topic" },
   { difficulty: "medium", timeLimit: 45, topicCount: 6, label: "Medium", description: "45 seconds per topic" },
-  { difficulty: "hard", timeLimit: 30, topicCount: 7, label: "Hard", description: "30 seconds per topic" },
+  { difficulty: "hard",   timeLimit: 30, topicCount: 7, label: "Hard",   description: "30 seconds per topic" },
 ];
 
-export function TrainerSetup({ onSelect, selected }: TrainerSetupProps) {
+export function TrainerSetup({ onSelect, onStart, selected }: TrainerSetupProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -43,6 +44,20 @@ export function TrainerSetup({ onSelect, selected }: TrainerSetupProps) {
           </button>
         ))}
       </div>
+
+      {/* Start button — only shown when a difficulty is selected */}
+      <button
+        onClick={onStart}
+        disabled={!selected}
+        className={cn(
+          "w-full py-4 font-[family-name:var(--font-jetbrains)] text-xs tracking-widest uppercase transition-all",
+          selected
+            ? "bg-[#FF5500] text-white hover:bg-[#E64D00] cursor-pointer"
+            : "bg-[#1A1A1A] text-[#444444] cursor-not-allowed border border-[#252525]"
+        )}
+      >
+        {selected ? `START ${selected.toUpperCase()} DRILL →` : "SELECT A DIFFICULTY"}
+      </button>
     </div>
   );
 }

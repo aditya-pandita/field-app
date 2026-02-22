@@ -12,19 +12,25 @@ import {
   Shield,
   Layers,
   Users,
+  BookMarked,
+  Target,
+  CalendarDays
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 const navItems = [
   { href: "/dashboard", label: "HOME", icon: LayoutDashboard, num: "01" },
   { href: "/journal", label: "JOURNAL", icon: BookOpen, num: "02" },
-  { href: "/live", label: "LIVE", icon: Mic, num: "03", isLive: true },
-  { href: "/analytics", label: "ANALYTICS", icon: BarChart2, num: "04" },
-  { href: "/trainer", label: "TRAINER", icon: Zap, num: "05" },
-  { href: "/scenario", label: "SCENARIO", icon: MessageSquare, num: "06" },
-  { href: "/adversary", label: "ADVERSARY", icon: Shield, num: "07", isAdversary: true },
-  { href: "/flashcards", label: "CARDS", icon: Layers, num: "08" },
-  { href: "/coaches", label: "COACHES", icon: Users, num: "09" },
+  { href: '/sessions', label: 'SESSIONS', icon: CalendarDays, num: '03' },
+  { href: '/approaches', label: 'APPROACHES', icon: Target, num: '04' },
+  { href: "/live", label: "LIVE", icon: Mic, num: "05", isLive: true },
+  { href: "/analytics", label: "ANALYTICS", icon: BarChart2, num: "06" },
+  { href: "/trainer", label: "TRAINER", icon: Zap, num: "07" },
+  { href: "/scenario", label: "SCENARIO", icon: MessageSquare, num: "08" },
+  { href: "/adversary", label: "ADVERSARY", icon: Shield, num: "09", isAdversary: true },
+  { href: "/flashcards", label: "CARDS", icon: Layers, num: "10" },
+  { href: "/coaches", label: "COACHES", icon: Users, num: "11" },
+  { href: '/reference', label: 'REFERENCE', icon: BookMarked, num: '12' }
 ];
 
 interface SidebarProps {
