@@ -39,6 +39,7 @@ const ALL_ITEMS = [
   { href: "/journal",    label: "JOURNAL",    icon: BookOpen },
   { href: "/sessions",   label: "SESSIONS",   icon: CalendarDays },
   { href: "/approaches", label: "APPROACHES", icon: Target },
+  { href: "/calendar",   label: "CALENDAR",   icon: CalendarDays },
   { href: "/live",       label: "LIVE",       icon: Mic,        isLive: true },
   { href: "/analytics",  label: "ANALYTICS",  icon: BarChart2 },
   { href: "/program",    label: "PROGRAM",    icon: Trophy },

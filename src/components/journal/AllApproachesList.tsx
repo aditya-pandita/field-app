@@ -7,7 +7,9 @@ import { useState, useEffect } from "react";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Approach, PhaseReached, Outcome } from "@/lib/firebase/types";
+import { deleteApproach } from "@/lib/firebase/queries/approaches";
 import { ApproachCard } from "./ApproachCard";
+import { LogApproachModal } from "@/components/approach/LogApproachModal";
 import { cn } from "@/lib/utils";
 
 interface AllApproachesListProps {
@@ -38,39 +40,51 @@ const PHASE_OPTIONS: { value: FilterPhase; label: string }[] = [
 ];
 
 export function AllApproachesList({ userId }: AllApproachesListProps) {
-  const [approaches, setApproaches] = useState<Approach[]>([]);
-  const [loading,    setLoading]    = useState(true);
-  const [sort,       setSort]       = useState<SortKey>("newest");
-  const [outcome,    setOutcome]    = useState<FilterOutcome>("all");
-  const [phase,      setPhase]      = useState<FilterPhase>("all");
+  const [approaches,    setApproaches]    = useState<Approach[]>([]);
+  const [loading,       setLoading]       = useState(true);
+  const [sort,          setSort]          = useState<SortKey>("newest");
+  const [outcome,       setOutcome]       = useState<FilterOutcome>("all");
+  const [phase,         setPhase]         = useState<FilterPhase>("all");
+  const [editApproach,  setEditApproach]  = useState<Approach | null>(null);
+
+  async function load() {
+    setLoading(true);
+    try {
+      if (!db) return;
+      const q = query(
+        collection(db, "approaches"),
+        where("userId", "==", userId),
+        orderBy("loggedAt", "desc")
+      );
+      const snap = await getDocs(q);
+      const data = snap.docs.map((d) => ({
+        ...d.data(),
+        approachId: d.id,
+        loggedAt: d.data().loggedAt?.toDate?.() ?? new Date(),
+        createdAt: d.data().createdAt?.toDate?.() ?? new Date(),
+        tags: d.data().tags ?? [],
+      })) as Approach[];
+      setApproaches(data);
+    } catch (e) {
+      console.error("Failed to load approaches:", e);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        if (!db) return; 
-        const q = query(
-          collection(db, "approaches"),
-          where("userId", "==", userId),
-          orderBy("loggedAt", "desc")
-        );
-        const snap = await getDocs(q);
-        const data = snap.docs.map((d) => ({
-          ...d.data(),
-          approachId: d.id,
-          loggedAt: d.data().loggedAt?.toDate?.() ?? new Date(),
-          createdAt: d.data().createdAt?.toDate?.() ?? new Date(),
-          tags: d.data().tags ?? [],
-        })) as Approach[];
-        setApproaches(data);
-      } catch (e) {
-        console.error("Failed to load approaches:", e);
-      } finally {
-        setLoading(false);
-      }
-    }
     if (userId) load();
   }, [userId]);
+
+  const handleDelete = async (approachId: string) => {
+    await deleteApproach(approachId);
+    setApproaches((prev) => prev.filter((a) => a.approachId !== approachId));
+  };
+
+  const handleEditSaved = () => {
+    setEditApproach(null);
+    load();
+  };
 
   // Filter
   const filtered = approaches.filter((a) => {
@@ -199,10 +213,20 @@ export function AllApproachesList({ userId }: AllApproachesListProps) {
               key={approach.approachId}
               approach={approach}
               number={idx + 1}
+              onEdit={() => setEditApproach(approach)}
+              onDelete={handleDelete}
             />
           ))}
         </div>
       )}
+
+      <LogApproachModal
+        isOpen={!!editApproach}
+        onClose={() => setEditApproach(null)}
+        userId={userId}
+        existingApproach={editApproach ?? undefined}
+        onSuccess={handleEditSaved}
+      />
     </div>
   );
 }
