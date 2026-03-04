@@ -60,22 +60,24 @@ export interface ProgramMeta {
 }
 
 interface UseApproachLoggerOptions {
-  existingApproach?: Approach;
-  programMeta?:      ProgramMeta;
+  existingApproach?:  Approach;
+  programMeta?:       ProgramMeta;
+  externalSessionId?: string; // non-empty when locked to a specific session
+  initialSessionId?:  string; // pre-select a session in the picker (modal context)
 }
 
 export function useApproachLogger(
   userId: string,
   options: UseApproachLoggerOptions = {}
 ) {
-  const { existingApproach, programMeta } = options;
+  const { existingApproach, programMeta, externalSessionId, initialSessionId } = options;
   const isEditMode = !!existingApproach;
 
   const [step,       setStep]       = useState(0);
   const [formData,   setFormData]   = useState<ApproachFormData>(
     existingApproach
       ? approachToFormData(existingApproach)
-      : { ...defaultFormData, tags: programMeta?.initialTags ?? [] }
+      : { ...defaultFormData, tags: programMeta?.initialTags ?? [], sessionId: initialSessionId ?? "" }
   );
   const [loading,          setLoading]          = useState(false);
   const [error,            setError]            = useState<string | null>(null);

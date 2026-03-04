@@ -119,7 +119,7 @@ export default function DashboardPage() {
         </div>
         <div>
           <SectionLabel>QUICK ACTIONS</SectionLabel>
-          <QuickActions />
+          <QuickActions userId={userId ?? ""} />
         </div>
       </div>
     </div>

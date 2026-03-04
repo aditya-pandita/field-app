@@ -17,15 +17,16 @@ import { LoggerSuccess } from "./LoggerSuccess";
 import type { Approach, Session, ApproachRecording } from "@/lib/firebase/types";
 
 interface ApproachLoggerProps {
-  userId:              string;
-  sessionId:           string;
-  existingApproach?:   Approach;
-  availableSessions?:  Session[];
+  userId:               string;
+  sessionId:            string;
+  initialSessionId?:    string;
+  existingApproach?:    Approach;
+  availableSessions?:   Session[];
   availableRecordings?: ApproachRecording[];
-  programMeta?:        ProgramMeta;
-  onSuccess?:          () => void;
-  onSuccessWithId?:    (approachId: string) => void;
-  onClose?:            () => void;
+  programMeta?:         ProgramMeta;
+  onSuccess?:           () => void;
+  onSuccessWithId?:     (approachId: string) => void;
+  onClose?:             () => void;
 }
 
 const STEP_LABELS = [
@@ -38,6 +39,7 @@ const STEP_LABELS = [
 export function ApproachLogger({
   userId,
   sessionId,
+  initialSessionId,
   existingApproach,
   availableSessions  = [],
   availableRecordings = [],
@@ -51,7 +53,12 @@ export function ApproachLogger({
     liveScore, isStepValid, progress,
     savedApproachId, savedSessionId,
     updateField, nextStep, prevStep, submit, reset,
-  } = useApproachLogger(userId, { existingApproach, programMeta });
+  } = useApproachLogger(userId, {
+    existingApproach,
+    programMeta,
+    externalSessionId: sessionId || undefined,
+    initialSessionId,
+  });
 
   const handleSubmit = async () => {
     const createdId = await submit(sessionId);
@@ -116,18 +123,20 @@ export function ApproachLogger({
             onChange={(v) => updateField("outcome", v)}
           />
 
-          {/* Session picker — only show if sessions available and not locked to one */}
-          {availableSessions.length > 0 && (
+          {/* Session picker */}
+          {availableSessions.length > 0 ? (
             <div>
               <label className="block font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-widest text-[#888888] mb-2">
-                LINK TO SESSION
+                Link to Session <span className="text-[#FF5500]">*</span>
               </label>
               <select
                 value={formData.sessionId || sessionId}
                 onChange={(e) => updateField("sessionId", e.target.value)}
                 className="w-full bg-[#111111] border border-[#252525] text-[#888888] font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-widest px-3 py-2.5 outline-none focus:border-[#FF5500]"
               >
-                <option value={sessionId}>Current session</option>
+                {sessionId ? (
+                  <option value={sessionId}>Current session</option>
+                ) : null}
                 {availableSessions
                   .filter((s) => s.sessionId !== sessionId)
                   .map((s) => {
@@ -140,7 +149,16 @@ export function ApproachLogger({
                   })}
               </select>
             </div>
-          )}
+          ) : !sessionId ? (
+            <div className="p-3 border border-[#FF5500]/30 bg-[rgba(255,85,0,0.05)]">
+              <p className="font-[family-name:var(--font-jetbrains)] text-[10px] text-[#FF5500] uppercase tracking-widest">
+                No sessions found
+              </p>
+              <p className="text-[#666666] text-xs mt-1">
+                Start a session first — go to Sessions → New Session, then come back to log.
+              </p>
+            </div>
+          ) : null}
 
           {/* Recording link — show if recordings available */}
           {availableRecordings.length > 0 && (
