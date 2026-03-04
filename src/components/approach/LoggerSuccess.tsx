@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Outcome } from "@/lib/firebase/types";
 import { ScoreRing } from "@/components/ui/ScoreRing";
 
@@ -8,6 +9,8 @@ interface LoggerSuccessProps {
   outcome: Outcome;
   onLogAnother: () => void;
   onDone: () => void;
+  approachId?: string | null;
+  sessionId?: string | null;
 }
 
 const OUTCOME_LABELS: Record<Outcome, string> = {
@@ -19,7 +22,19 @@ const OUTCOME_LABELS: Record<Outcome, string> = {
   interrupted: "Interrupted",
 };
 
-export function LoggerSuccess({ score, outcome, onLogAnother, onDone }: LoggerSuccessProps) {
+export function LoggerSuccess({ score, outcome, onLogAnother, onDone, approachId, sessionId }: LoggerSuccessProps) {
+  const router = useRouter();
+
+  const handleAddToPipeline = () => {
+    const params = new URLSearchParams();
+    if (approachId) params.set("approachId", approachId);
+    if (sessionId) params.set("sessionId", sessionId);
+    const query = params.toString();
+    router.push(`/pipeline/new${query ? `?${query}` : ""}`);
+  };
+
+  const isContact = outcome === "number" || outcome === "social_media" || outcome === "instant_date";
+
   return (
     <div className="flex flex-col items-center justify-center py-8 space-y-6">
       <ScoreRing score={score} size="lg" showLabel />
@@ -41,6 +56,14 @@ export function LoggerSuccess({ score, outcome, onLogAnother, onDone }: LoggerSu
         >
           Log Another
         </button>
+        {isContact && (
+          <button
+            onClick={handleAddToPipeline}
+            className="w-full border border-[#FF5500]/50 text-[#FF5500] py-3 font-[family-name:var(--font-jetbrains)] text-sm uppercase tracking-widest hover:border-[#FF5500] hover:bg-[rgba(255,85,0,0.07)] transition-colors"
+          >
+            + Add to Pipeline →
+          </button>
+        )}
         <button
           onClick={onDone}
           className="w-full border border-[#252525] text-[#888888] py-3 font-[family-name:var(--font-jetbrains)] text-sm uppercase tracking-widest hover:border-[#333333] hover:text-white transition-colors"

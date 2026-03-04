@@ -3,6 +3,7 @@ import {
   doc,
   addDoc,
   updateDoc,
+  deleteDoc,
   getDoc,
   getDocs,
   query,
@@ -10,6 +11,7 @@ import {
   orderBy,
   serverTimestamp,
   Timestamp,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../client";
 import type { Session, NewSession } from "../types";
@@ -47,17 +49,15 @@ export async function getUserSessions(userId: string): Promise<Session[]> {
 export async function getSessionById(sessionId: string): Promise<Session | null> {
   if (!db) return null;
   const snap = await getDoc(doc(db, "sessions", sessionId));
-  if (!snap.exists()) return null;   // ← exists() is a FUNCTION, not a property
+  if (!snap.exists()) return null;
   return toSession(snap.id, snap.data());
 }
 
 export async function createSession(userId: string, data: NewSession): Promise<Session> {
   if (!db) throw new Error("Database not configured");
-
   const ref = await addDoc(collection(db, "sessions"), {
     ...data,
     userId,
-    // Convert Date to Firestore Timestamp so it stores correctly
     sessionDate:     data.sessionDate instanceof Date
                        ? Timestamp.fromDate(data.sessionDate)
                        : data.sessionDate,
@@ -67,7 +67,6 @@ export async function createSession(userId: string, data: NewSession): Promise<S
     createdAt:       serverTimestamp(),
     updatedAt:       serverTimestamp(),
   });
-
   const created = await getDoc(ref);
   return toSession(ref.id, created.data());
 }
@@ -92,18 +91,56 @@ export async function completeSession(
   await updateDoc(doc(db, "sessions", sessionId), {
     moodAfter,
     notes,
-    isComplete:  true,
-    updatedAt:   serverTimestamp(),
+    isComplete: true,
+    updatedAt:  serverTimestamp(),
   });
+}
+
+/**
+ * Delete a session and all its approaches in a single batch.
+ * Also deletes any recordings linked to this session.
+ */
+export async function deleteSession(sessionId: string): Promise<void> {
+  if (!db) return;
+
+  const batch = writeBatch(db);
+
+  // Delete the session document
+  batch.delete(doc(db, "sessions", sessionId));
+
+  // Delete all approaches in this session
+  const approachSnap = await getDocs(
+    query(collection(db, "approaches"), where("sessionId", "==", sessionId))
+  );
+  approachSnap.docs.forEach((d) => batch.delete(d.ref));
+
+  // Delete all recordings linked to this session
+  const recordingSnap = await getDocs(
+    query(collection(db, "approachRecordings"), where("sessionId", "==", sessionId))
+  );
+  recordingSnap.docs.forEach((d) => batch.delete(d.ref));
+
+  await batch.commit();
 }
 
 export async function incrementApproachCount(sessionId: string): Promise<void> {
   if (!db) return;
   const snap = await getDoc(doc(db, "sessions", sessionId));
-  if (!snap.exists()) return;   // ← exists() is a FUNCTION
+  if (!snap.exists()) return;
   const current = snap.data()?.totalApproaches ?? 0;
   await updateDoc(doc(db, "sessions", sessionId), {
     totalApproaches: current + 1,
+    updatedAt:       serverTimestamp(),
+  });
+}
+
+export async function decrementApproachCount(sessionId: string): Promise<void> {
+  if (!db) return;
+  const snap = await getDoc(doc(db, "sessions", sessionId));
+  if (!snap.exists()) return;
+  const current = snap.data()?.totalApproaches ?? 0;
+  await updateDoc(doc(db, "sessions", sessionId), {
+    totalApproaches: Math.max(0, current - 1),
     updatedAt:       serverTimestamp(),
   });
 }

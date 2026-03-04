@@ -58,6 +58,9 @@ export interface Approach {
   whatToImprove: string;
   notableMoment: string;
   tags: string[];
+  // Program module metadata (optional)
+  programTrack?: string | null;
+  programDay?:   number | null;
   loggedAt: Date;
   createdAt: Date;
 }
@@ -228,3 +231,57 @@ export type NewSession = Omit<Session, "sessionId" | "userId" | "createdAt" | "u
 export type NewApproach = Omit<Approach, "approachId" | "createdAt" | "scoreOverall">;
 export type FeedbackResult = Omit<ScenarioFeedback, never>;
 export type DebriefResult = Omit<AdversaryDebrief, "debriefId">;
+
+export interface JournalEntry {
+  entryId: string;
+  userId: string;
+  title: string;
+  content: string;
+  sessionId: string | null;
+  approachId: string | null;
+  mood: number | null;
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+export type NewJournalEntry = Omit<JournalEntry, "entryId" | "createdAt" | "updatedAt">;
+
+// ── Pipeline ──────────────────────────────────────────────────────────────────
+
+export type LeadStage = "lead" | "texting" | "date_set" | "dating" | "intimate" | "dead";
+
+export interface PushPullTopic {
+  topic: string;
+  type: "push" | "pull" | "neutral";
+  note: string;
+}
+
+export interface Lead {
+  leadId: string;
+  userId: string;
+  stage: LeadStage;
+
+  // Profile
+  name: string;
+  photoUrl: string | null;
+  appearanceNotes: string;
+  vibeNotes: string;
+  generalNotes: string;
+
+  // Contact
+  phone: string | null;
+  instagram: string | null;
+  snapchat: string | null;
+
+  // Source
+  sourceApproachId: string | null;
+  sourceSessionId: string | null;
+
+  // Conversation intelligence
+  pushPullTopics: PushPullTopic[];
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type NewLead = Omit<Lead, "leadId" | "createdAt" | "updatedAt">;

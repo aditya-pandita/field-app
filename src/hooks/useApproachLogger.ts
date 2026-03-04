@@ -53,24 +53,35 @@ function approachToFormData(a: Approach): ApproachFormData {
   };
 }
 
+export interface ProgramMeta {
+  track:        string;
+  day:          number;
+  initialTags?: string[];
+}
+
 interface UseApproachLoggerOptions {
-  existingApproach?: Approach;  // if set, form is in edit mode
+  existingApproach?: Approach;
+  programMeta?:      ProgramMeta;
 }
 
 export function useApproachLogger(
   userId: string,
   options: UseApproachLoggerOptions = {}
 ) {
-  const { existingApproach } = options;
+  const { existingApproach, programMeta } = options;
   const isEditMode = !!existingApproach;
 
   const [step,       setStep]       = useState(0);
   const [formData,   setFormData]   = useState<ApproachFormData>(
-    existingApproach ? approachToFormData(existingApproach) : defaultFormData
+    existingApproach
+      ? approachToFormData(existingApproach)
+      : { ...defaultFormData, tags: programMeta?.initialTags ?? [] }
   );
-  const [loading,    setLoading]    = useState(false);
-  const [error,      setError]      = useState<string | null>(null);
-  const [isComplete, setIsComplete] = useState(false);
+  const [loading,          setLoading]          = useState(false);
+  const [error,            setError]            = useState<string | null>(null);
+  const [isComplete,       setIsComplete]       = useState(false);
+  const [savedApproachId,  setSavedApproachId]  = useState<string | null>(null);
+  const [savedSessionId,   setSavedSessionId]   = useState<string | null>(null);
 
   // If existingApproach changes (e.g. user clicks edit on a different approach),
   // reset form data to the new approach
@@ -120,15 +131,15 @@ export function useApproachLogger(
   /**
    * Submit — creates new approach or updates existing one.
    * sessionId can be passed directly to avoid React state batching issues.
+   * Returns the created approachId (create mode only).
    */
-  const submit = useCallback(async (sessionId?: string) => {
+  const submit = useCallback(async (sessionId?: string): Promise<string | undefined> => {
     setLoading(true);
     setError(null);
     try {
       const resolvedSessionId = sessionId || formData.sessionId;
 
       if (isEditMode && existingApproach) {
-        // UPDATE existing approach
         await updateApproach(existingApproach.approachId, {
           sessionId:       resolvedSessionId || existingApproach.sessionId,
           phaseReached:    formData.phaseReached,
@@ -144,12 +155,13 @@ export function useApproachLogger(
           notableMoment:   formData.notableMoment,
           tags:            formData.tags,
         });
+        setIsComplete(true);
+        return undefined;
       } else {
-        // CREATE new approach
         if (!resolvedSessionId) {
           throw new Error("No session ID. Please start a session first.");
         }
-        await logApproach(userId, {
+        const created = await logApproach(userId, {
           sessionId:       resolvedSessionId,
           phaseReached:    formData.phaseReached,
           outcome:         formData.outcome,
@@ -163,18 +175,22 @@ export function useApproachLogger(
           whatToImprove:   formData.whatToImprove,
           notableMoment:   formData.notableMoment,
           tags:            formData.tags,
+          ...(programMeta ? { programTrack: programMeta.track, programDay: programMeta.day } : {}),
           coachStyle:      "",
           environment:     "",
         } as any);
+        setSavedApproachId(created.approachId);
+        setSavedSessionId(resolvedSessionId);
+        setIsComplete(true);
+        return created.approachId;
       }
-
-      setIsComplete(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save approach");
+      return undefined;
     } finally {
       setLoading(false);
     }
-  }, [userId, formData, isEditMode, existingApproach]);
+  }, [userId, formData, isEditMode, existingApproach, programMeta]);
 
   const reset = useCallback(() => {
     setStep(0);
@@ -182,11 +198,14 @@ export function useApproachLogger(
     setLoading(false);
     setError(null);
     setIsComplete(false);
+    setSavedApproachId(null);
+    setSavedSessionId(null);
   }, []);
 
   return {
     step, formData, loading, error, isComplete, isEditMode,
     liveScore, isStepValid, progress,
+    savedApproachId, savedSessionId,
     updateField, nextStep, prevStep, submit, reset,
   };
 }

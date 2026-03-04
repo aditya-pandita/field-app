@@ -6,6 +6,7 @@
 // Step 0 includes session picker (link approach to any session).
 
 import { useApproachLogger } from "@/hooks/useApproachLogger";
+import type { ProgramMeta } from "@/hooks/useApproachLogger";
 import { PhaseSelector } from "./PhaseSelector";
 import { OutcomeSelector } from "./OutcomeSelector";
 import { ScoreSlider } from "./ScoreSlider";
@@ -16,13 +17,15 @@ import { LoggerSuccess } from "./LoggerSuccess";
 import type { Approach, Session, ApproachRecording } from "@/lib/firebase/types";
 
 interface ApproachLoggerProps {
-  userId:            string;
-  sessionId:         string;
-  existingApproach?: Approach;
-  availableSessions?: Session[];      // for session picker
-  availableRecordings?: ApproachRecording[]; // for recording link
-  onSuccess?:        () => void;
-  onClose?:          () => void;
+  userId:              string;
+  sessionId:           string;
+  existingApproach?:   Approach;
+  availableSessions?:  Session[];
+  availableRecordings?: ApproachRecording[];
+  programMeta?:        ProgramMeta;
+  onSuccess?:          () => void;
+  onSuccessWithId?:    (approachId: string) => void;
+  onClose?:            () => void;
 }
 
 const STEP_LABELS = [
@@ -38,18 +41,22 @@ export function ApproachLogger({
   existingApproach,
   availableSessions  = [],
   availableRecordings = [],
+  programMeta,
   onSuccess,
+  onSuccessWithId,
   onClose,
 }: ApproachLoggerProps) {
   const {
     step, formData, loading, error, isComplete, isEditMode,
     liveScore, isStepValid, progress,
+    savedApproachId, savedSessionId,
     updateField, nextStep, prevStep, submit, reset,
-  } = useApproachLogger(userId, { existingApproach });
+  } = useApproachLogger(userId, { existingApproach, programMeta });
 
   const handleSubmit = async () => {
-    await submit(sessionId);
+    const createdId = await submit(sessionId);
     onSuccess?.();
+    if (createdId) onSuccessWithId?.(createdId);
   };
 
   const handleLogAnother = () => reset();
@@ -61,6 +68,8 @@ export function ApproachLogger({
         outcome={formData.outcome}
         onLogAnother={handleLogAnother}
         onDone={onClose || (() => {})}
+        approachId={savedApproachId}
+        sessionId={savedSessionId ?? sessionId}
       />
     );
   }

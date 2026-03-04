@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard,
   BookOpen,
@@ -14,7 +15,9 @@ import {
   Users,
   BookMarked,
   Target,
-  CalendarDays
+  CalendarDays,
+  Kanban,
+  Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -25,12 +28,14 @@ const navItems = [
   { href: '/approaches', label: 'APPROACHES', icon: Target, num: '04' },
   { href: "/live", label: "LIVE", icon: Mic, num: "05", isLive: true },
   { href: "/analytics", label: "ANALYTICS", icon: BarChart2, num: "06" },
-  { href: "/trainer", label: "TRAINER", icon: Zap, num: "07" },
-  { href: "/scenario", label: "SCENARIO", icon: MessageSquare, num: "08" },
-  { href: "/adversary", label: "ADVERSARY", icon: Shield, num: "09", isAdversary: true },
-  { href: "/flashcards", label: "CARDS", icon: Layers, num: "10" },
-  { href: "/coaches", label: "COACHES", icon: Users, num: "11" },
-  { href: '/reference', label: 'REFERENCE', icon: BookMarked, num: '12' }
+  { href: "/program", label: "PROGRAM", icon: Trophy, num: "07" },
+  { href: "/trainer", label: "TRAINER", icon: Zap, num: "08" },
+  { href: "/scenario", label: "SCENARIO", icon: MessageSquare, num: "09" },
+  { href: "/adversary", label: "ADVERSARY", icon: Shield, num: "10", isAdversary: true },
+  { href: "/flashcards", label: "CARDS", icon: Layers, num: "11" },
+  { href: "/coaches", label: "COACHES", icon: Users, num: "12" },
+  { href: '/reference', label: 'REFERENCE', icon: BookMarked, num: '13' },
+  { href: '/pipeline',  label: 'PIPELINE',  icon: Kanban,     num: '14' },
 ];
 
 interface SidebarProps {
@@ -40,6 +45,7 @@ interface SidebarProps {
 
 export default function Sidebar({ userId, displayName }: SidebarProps) {
   const pathname = usePathname();
+  const { signOut } = useAuth();
 
   return (
     <aside className="hidden lg:flex flex-col w-[220px] bg-black border-r border-[#252525] h-screen fixed left-0 top-0 z-40">
@@ -99,7 +105,10 @@ export default function Sidebar({ userId, displayName }: SidebarProps) {
         <div className="text-[12px] text-[#666666] mb-2 truncate overflow-hidden whitespace-nowrap">
           {displayName || "User"}
         </div>
-        <button className="font-['JetBrains_Mono'] text-[9px] tracking-[2px] uppercase text-[#4A4A4A] bg-transparent border-none cursor-pointer transition-colors duration-150 hover:text-white">
+        <button
+          onClick={signOut}
+          className="font-['JetBrains_Mono'] text-[9px] tracking-[2px] uppercase text-[#4A4A4A] bg-transparent border-none cursor-pointer transition-colors duration-150 hover:text-white"
+        >
           Sign out
         </button>
       </div>

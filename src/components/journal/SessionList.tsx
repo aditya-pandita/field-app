@@ -22,7 +22,7 @@ export default function SessionList({
         <p className="font-[family-name:var(--font-syne)] text-xl text-white mb-2">No sessions yet</p>
         <p className="text-[#444444] text-sm mb-6">Start your first field session to begin tracking.</p>
         <a
-          href="/journal/new"
+          href="/sessions/new"
           className="bg-[#FF5500] text-white font-[family-name:var(--font-jetbrains)] text-[10px] tracking-widest uppercase px-7 py-3 hover:bg-[#E64D00] transition-colors"
         >
           + NEW SESSION

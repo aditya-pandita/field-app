@@ -4,6 +4,7 @@
 // All sessions — filterable, sortable, with inline edit.
 
 import { useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useSessions } from "@/hooks/useSessions";
 import { AllSessionsList } from "@/components/journal/AllSessionsList";
@@ -12,7 +13,7 @@ import type { Session } from "@/lib/firebase/types";
 
 export default function SessionsPage() {
   const { userId, loading: authLoading } = useAuth();
-  const { sessions, loading, refresh }   = useSessions(userId);
+  const { refresh } = useSessions(userId);
   const [editSession, setEditSession]    = useState<Session | null>(null);
 
   if (authLoading) return (
@@ -26,16 +27,24 @@ export default function SessionsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <p className="font-[family-name:var(--font-jetbrains)] text-[10px] text-[#FF5500] uppercase tracking-widest mb-3">
-          FIELD LOG
-        </p>
-        <h1 className="font-[family-name:var(--font-syne)] text-4xl md:text-5xl font-bold text-white mb-2">
-          All Sessions
-        </h1>
-        <p className="text-[#666666] text-sm">
-          Every field session. Click to open, hover to edit.
-        </p>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <p className="font-[family-name:var(--font-jetbrains)] text-[10px] text-[#FF5500] uppercase tracking-widest mb-3">
+            FIELD LOG
+          </p>
+          <h1 className="font-[family-name:var(--font-syne)] text-4xl md:text-5xl font-bold text-white mb-2">
+            All Sessions
+          </h1>
+          <p className="text-[#666666] text-sm">
+            Every field session. Click to open, hover to edit.
+          </p>
+        </div>
+        <Link
+          href="/sessions/new"
+          className="flex-shrink-0 bg-[#FF5500] text-white font-[family-name:var(--font-jetbrains)] text-[10px] tracking-[3px] uppercase px-7 py-3 hover:bg-[#E64D00] transition-colors"
+        >
+          + NEW SESSION
+        </Link>
       </div>
 
       <div className="h-px bg-[#252525] mb-8" />
@@ -55,8 +64,7 @@ export default function SessionsPage() {
       )}
 
       <AllSessionsList
-        sessions={sessions}
-        loading={loading}
+        userId={userId}
         onEdit={(session) => setEditSession(session)}
       />
     </div>

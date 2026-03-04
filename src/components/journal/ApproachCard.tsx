@@ -8,10 +8,11 @@ import { getScoreColor } from "@/lib/utils/scores";
 import { cn } from "@/lib/utils";
 
 interface ApproachCardProps {
-  approach:        Approach;
-  number?:         number;
-  recordings?:     ApproachRecording[];
-  onEdit?:         () => void;
+  approach:         Approach;
+  number?:          number;
+  recordings?:      ApproachRecording[];
+  onEdit?:          () => void;
+  onDelete?:        (approachId: string) => void;   // ← ADDED
   onLinkRecording?: (recordingId: string) => void;
 }
 
@@ -49,22 +50,29 @@ function ScoreBand({ score }: { score: number }) {
 }
 
 export function ApproachCard({
-  approach, number, recordings = [], onEdit, onLinkRecording,
+  approach, number, recordings = [], onEdit, onDelete, onLinkRecording,
 }: ApproachCardProps) {
   const [expanded,      setExpanded]      = useState(false);
   const [showLinkMenu,  setShowLinkMenu]  = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);  // ← ADDED
+  const [deleting,      setDeleting]      = useState(false);  // ← ADDED
 
   const phaseIndex = PHASES.findIndex((p) => p.id === approach.phaseReached);
   const outcome    = OUTCOME_LABELS[approach.outcome];
 
-  // Recordings not yet linked to an approach — available to link
   const availableRecordings = recordings.filter(
     (r) => !r.approachId || r.approachId === approach.approachId
   );
-  // Recording already linked to this approach
   const linkedRecording = recordings.find(
     (r) => r.approachId === approach.approachId
   );
+
+  // ← ADDED
+  const handleDelete = async () => {
+    if (!onDelete) return;
+    setDeleting(true);
+    await onDelete(approach.approachId);
+  };
 
   return (
     <div className="bg-[#111111] border border-[#252525] transition-all hover:border-[#333333]">
@@ -153,7 +161,7 @@ export function ApproachCard({
         <div className="border-t border-[#1A1A1A] p-4 space-y-6">
 
           {/* Action buttons */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap items-center">
             {onEdit && (
               <button
                 onClick={(e) => { e.stopPropagation(); onEdit(); }}
@@ -202,6 +210,35 @@ export function ApproachCard({
                 )}
               </div>
             )}
+
+            {/* ── DELETE ── */}
+            {onDelete && !confirmDelete && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setConfirmDelete(true); }}
+                className="ml-auto px-3 py-1.5 border border-[#252525] text-[#444444] font-[family-name:var(--font-jetbrains)] text-[9px] uppercase tracking-widest hover:border-[#EF4444] hover:text-[#EF4444] transition-colors"
+              >
+                DELETE
+              </button>
+            )}
+            {confirmDelete && (
+              <div className="ml-auto flex items-center gap-2">
+                <span className="font-[family-name:var(--font-jetbrains)] text-[9px] text-[#EF4444] uppercase">Sure?</span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setConfirmDelete(false); }}
+                  className="font-[family-name:var(--font-jetbrains)] text-[9px] uppercase border border-[#333333] text-[#888888] px-2 py-1 hover:text-white transition-colors"
+                >
+                  NO
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+                  disabled={deleting}
+                  className="font-[family-name:var(--font-jetbrains)] text-[9px] uppercase bg-[#EF4444] text-white px-2 py-1 hover:bg-[#DC2626] transition-colors disabled:opacity-50"
+                >
+                  {deleting ? "..." : "YES"}
+                </button>
+              </div>
+            )}
+            {/* ── END DELETE ── */}
           </div>
 
           {/* Linked recording */}

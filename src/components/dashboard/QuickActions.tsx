@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils/cn";
 
 export default function QuickActions() {
   const actions = [
-    { label: "Log Today's Approach", href: "/journal/new", primary: true, icon: "+" },
+    { label: "Log Today's Approach", href: "/sessions/new", primary: true, icon: "+" },
     { label: "Practice Scenario", href: "/scenario", icon: "◎" },
     { label: "Conversation Drill", href: "/trainer", icon: "⚡" },
     { label: "Review Flashcards", href: "/flashcards", subtitle: "3 due", icon: "◈" },

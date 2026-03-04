@@ -54,7 +54,7 @@ export default function DashboardPage() {
         subtitle={subtitle}
         action={
           <Link
-            href="/journal/new"
+            href="/sessions/new"
             className="bg-[#FF5500] text-white font-[family-name:var(--font-jetbrains)] text-[10px] tracking-[3px] uppercase px-7 py-3 cursor-pointer transition-all duration-150 hover:bg-[#E64D00]"
           >
             + NEW SESSION
@@ -113,7 +113,7 @@ export default function DashboardPage() {
           <RecentSessions
             sessions={sessions?.slice(0, 3) ?? []}
             onSessionClick={(id) => {
-              window.location.href = `/journal/${id}`;
+              window.location.href = `/sessions/${id}`;
             }}
           />
         </div>

@@ -70,7 +70,7 @@ export function NewSessionForm({ userId }: NewSessionFormProps) {
         notes,
       };
       const session = await createSession(userId, sessionData);
-      router.push(`/journal/${session.sessionId}`);
+      router.push(`/sessions/${session.sessionId}`);
     } catch (error) {
       console.error("Failed to create session:", error);
     } finally {

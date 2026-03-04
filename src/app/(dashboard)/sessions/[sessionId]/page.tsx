@@ -1,7 +1,7 @@
 "use client";
 
-// src/app/(dashboard)/journal/[sessionId]/page.tsx
-// Uses the SessionDetail component which has edit, delete, recordings, approach logger.
+// src/app/(dashboard)/sessions/[sessionId]/page.tsx
+// Session detail + approach logger (moved from /journal/[sessionId]).
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -51,10 +51,10 @@ export default function SessionDetailPage() {
           Session not found
         </p>
         <button
-          onClick={() => router.push("/journal")}
+          onClick={() => router.push("/sessions")}
           className="bg-[#FF5500] text-white font-[family-name:var(--font-jetbrains)] text-[10px] tracking-widest uppercase px-7 py-3 hover:bg-[#E64D00] transition-colors"
         >
-          BACK TO JOURNAL
+          BACK TO SESSIONS
         </button>
       </div>
     );
